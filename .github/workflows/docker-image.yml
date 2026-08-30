@@ -1,0 +1,31 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码（虽然拉取镜像非必须，但保留此步骤是好习惯）
+      - uses: actions/checkout@v4
+
+      # 2. 拉取 httpd 镜像
+      - name: Pull httpd Docker image
+        run: docker pull httpd:latest
+
+      # 3. 将镜像保存为 .tar 文件
+      - name: Save Docker image to tar file
+        run: docker save httpd:latest -o httpd-image.tar
+
+      # 4. 上传 .tar 文件作为 Artifact
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: httpd-docker-image
+          path: httpd-image.tar
+          retention-days: 7 # 设置保留天数，默认90天，这里设为7天节省空间
