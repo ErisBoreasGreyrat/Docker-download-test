@@ -1,0 +1,28 @@
+name: Mirror RDMA DP Image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull, tag and push
+        run: |
+          SRC=swr.cn-south-1.myhuaweicloud.com/ascendhub/k8s-rdma-shared-dp:v26.2.0-openeuler24.03-arm64
+          DST=ghcr.io/${{ github.repository_owner }}/k8s-rdma-shared-dp:v26.2.0-openeuler24.03-arm64
+
+          docker pull --platform linux/arm64 "$SRC"
+          docker tag "$SRC" "$DST"
+          docker push "$DST"
